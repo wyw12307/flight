@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wdedu.mapper.FlightMapper">
+	<resultMap type="com.wdedu.po.Flight" id="BaseResultMap">
+		<collection property="aircrafts"
+			ofType="com.wdedu.po.Aircraft">
+			<id column="aircraft_id" property="aircraftId" />
+			<result column="aircraft_name" property="aircraftName" />
+			<result column="airline_id" property="airlineId" />
+		</collection>
+
+		<collection property="airlines"
+			ofType="com.wdedu.po.Airline">
+			<id column="airline_id" property="airlineId" />
+			<result column="airline_name" property="airlineName" />
+		</collection>
+
+		<collection property="departures"
+			ofType="com.wdedu.po.Departure">
+			<id column="departure_id" property="departureId" />
+			<result column="departure_name" property="departureName" />
+		</collection>
+
+		<collection property="destintions"
+			ofType="com.wdedu.po.Destintion">
+			<id column="destintion_id" property="destintionId" />
+			<result column="destintion_name" property="destintionName" />
+		</collection>
+
+		<collection property="flightInfos"
+			ofType="com.wdedu.po.FlightInfo">
+			<id column="id" property="id" />
+			<result column="departure_id" property="departureId" />
+			<result column="destination_id" property="destinationId" />
+			<result column="aircraft_id" property="aircraftId" />
+			<result column="starttime" property="starttime" />
+			<result column="endtime" property="endtime" />
+			<result column="ticket_price" property="ticketPrice" />
+		</collection>
+	</resultMap>
+
+	<select id="getTotalCount" resultType="int">
+		select count(*) from flight_info
+		<where>
+
+			<if
+				test="departureId!=null and departureId!='' and departureId!=0">
+				and departure_id=#{departureId}
+			</if>
+			<if
+				test="destintionId!=null and destintionId!='' and destintionId!=0">
+				and destination_id=#{destintionId}
+			</if>
+
+		</where>
+	</select>
+
+	<select id="selectAll" resultMap="BaseResultMap">
+		<bind name="currentPageNum" value="(currentPageNum-1)*pageSize" />
+		select * from flight_info fl
+		INNER JOIN departure de ON
+		fl.departure_id=de.departure_id
+		INNER JOIN destintion des ON
+		fl.destination_id=des.destintion_id
+		INNER JOIN aircraft airc ON
+		fl.aircraft_id=airc.aircraft_id
+		INNER JOIN airline airl ON
+		airc.airline_id=airl.airline_id
+
+		<where>
+			<if
+				test="departureId!=null and departureId!='' and departureId!=0">
+				and fl.departure_id=#{departureId}
+			</if>
+			<if
+				test="destintionId!=null and destintionId!='' and destintionId!=0">
+				and fl.destination_id=#{destintionId}
+			</if>
+		</where>
+
+		limit #{currentPageNum},#{pageSize}
+	</select>
+
+	<select id="selectDeparture" resultMap="BaseResultMap">
+		SELECT * FROM departure
+	</select>
+	<select id="selectDestintion" resultMap="BaseResultMap">
+		SELECT * FROM destintion
+	</select>
+
+</mapper>
